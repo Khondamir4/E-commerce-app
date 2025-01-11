@@ -24,6 +24,9 @@ class UserCreate(BaseModel):
 
 class UserResponse(BaseModel):
     username: str
+    email: str
+    full_name: str
+
 
     class Config:
         from_attributes = True
