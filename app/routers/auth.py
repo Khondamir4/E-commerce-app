@@ -59,17 +59,20 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 def login(credentials: schemas.Login, db: Session = Depends(get_db)):
     user = crud.authenticate_user(db, credentials.username, credentials.password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    
-    # Generate access token (assuming it's defined elsewhere)
-    access_token = create_access_token(data={"sub": user.username})
-    
-    return {"message": "Login successful", "access_token": access_token, "token_type": "bearer"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
+    token = create_access_token({"sub": user.username})
+    return {"message": "Login successful", "access_token": token, "token_type": "bearer"}
     
 
-@router.get("/profile", response_model=schemas.User)
-def get_profile(current_user: schemas.User = Depends(get_current_user)):
-    return current_user
+@router.get("/profile")
+def get_profile(current_user: models.User = Depends(get_current_user)):
+    return {
+        "username": current_user.username,
+        "email": current_user.email or "No email provided",
+        "full_name": current_user.full_name or "No full name provided"
+    }
 
 @router.put("/update_profile")
 def update_profile(user_data: schemas.UserCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
