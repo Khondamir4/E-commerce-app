@@ -10,7 +10,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)  
     full_name = Column(String)
     hashed_password = Column(String, nullable=False)
-    is_admin = True
+    is_admin = Column(Boolean, nullable=True)
 
 class Product(Base):
     __tablename__ = "products"

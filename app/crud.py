@@ -24,6 +24,15 @@ def create_user(db: Session, username: str, password: str):
     db.refresh(db_user)
     return db_user
 
+def delete_user(db: Session, user_id: int):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+    db.delete(user)
+    db.commit()
+    return user
+
+
 
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user_by_username(db, username)
@@ -52,3 +61,31 @@ def get_user_by_token(db: Session, token: str):
 
 def get_all_products(db: Session):
     return db.query(Product).all()
+
+def update_product(db: Session, product_id: int, product: ProductCreate):
+    db_product = db.query(Product).filter(Product.id == product_id).first()
+
+    if not db_product:
+        return None  
+
+    db_product.name = product.name
+    db_product.description = product.description
+    db_product.price = product.price
+    db_product.quantity = product.quantity
+    db.commit()
+    db.refresh(db_product) 
+
+    return db_product  
+
+def delete_product(db: Session, product_id: int):
+    # Get the product by id
+    product = db.query(Product).filter(Product.id == product_id).first()
+    
+    # If product doesn't exist, return None (or you can raise an exception)
+    if not product:
+        return None
+
+    db.delete(product)
+    db.commit()
+    
+    return product

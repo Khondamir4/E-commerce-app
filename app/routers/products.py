@@ -1,26 +1,20 @@
 # app/routers/products.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import crud, schemas
+from app import crud, schemas, models
 from app.routers.auth import get_db, get_current_user
 from app.models import User, Product
-from app import models
+from app.schemas import ProductCreate
 
 router = APIRouter()
 
-@router.post("/products")
-def create_product(
-    product_data: schemas.ProductCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
+@router.post("/products", response_model=schemas.Product)
+def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     if not current_user.is_admin:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
-        )
-    new_product = crud.create_product(db, product_data)
-    return {"message": "Product added successfully", "product": new_product}
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    return crud.create_product(db=db, product=product)
+
 
 @router.get("/products")
 def get_products(db: Session = Depends(get_db)):
@@ -34,38 +28,51 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
-@router.put("/products/{product_id}", response_model=schemas.Product)
-def update_product(product_id: int, product_data: schemas.ProductCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    # Ensure the user is an admin
+@router.put("/products/{product_id}", response_model=schemas.ProductBase)
+def update_product(
+    product_id: int,
+    product: schemas.ProductCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Ensure the user is an admin before allowing product update
     if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Permission denied")
+        raise HTTPException(
+            status_code=403,
+            detail="Permission denied"
+        )
 
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+    updated_product = crud.update_product(db=db, product_id=product_id, product=product)
 
-    # Update the product fields with the new data
-    product.name = product_data.name
-    product.description = product_data.description
-    product.price = product_data.price
-    product.quantity = product_data.quantity
+    # Handle case where product is not found
+    if not updated_product:
+        raise HTTPException(
+            status_code = 404,
+            detail="Product not found"
+        )
 
-    db.commit()
-    db.refresh(product)
-    
-    return product
+    return updated_product
 
-@router.delete("/products/{product_id}", response_model=schemas.Product)
-def delete_product(product_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    # Ensure the user is an admin
+@router.delete("/products/{product_id}", status_code=204)
+def delete_product(
+    product_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
+    # Check if the current user is an admin
     if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Permission denied")
+        raise HTTPException(
+            status_code=403,
+            detail="Permission denied"
+        )
     
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+    deleted_product = crud.delete_product(db=db, product_id=product_id)
 
-    db.delete(product)
-    db.commit()
-    
-    return product
+    # If the product is not found, raise an exception
+    if not deleted_product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
+
+    return deleted_product

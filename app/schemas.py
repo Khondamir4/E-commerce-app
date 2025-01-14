@@ -45,7 +45,7 @@ class ProductCreate(BaseModel):
     description: str
     price: float
     quantity: int
-    
+
     class Config:
         from_attributes = True
 
@@ -53,6 +53,10 @@ class ProductBase(BaseModel):
     name: str
     description: str
     price: float
+    quantity: int
+
+    class Config:
+        from_attributes = True
 
 class Product(ProductBase):
     id: int

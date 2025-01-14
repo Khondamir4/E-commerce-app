@@ -41,6 +41,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         email=user_data.email,
         full_name=user_data.full_name,
         hashed_password=hashed_password,
+        is_admin=False
     )
     try:
         db.add(new_user)
@@ -54,6 +55,19 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         )
     
     return new_user  # Returning the user without sensitive info
+
+@router.delete("/delete_user/{user_id}")
+def delete_user(
+    user_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    user = crud.delete_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": f"User with ID {user_id} has been deleted"}
 
 
 @router.post("/login")
