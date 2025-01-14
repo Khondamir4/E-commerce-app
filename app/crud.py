@@ -45,8 +45,10 @@ def create_product(db: Session, product: ProductCreate):
 
 
 def get_user_by_token(db: Session, token: str):
-    # Assuming you have a function `verify_token` to verify and decode the token
-    user_id = verify_token(token)  # This function should return the user ID from the token
+    user_id = verify_token(token)  
     if user_id:
         return db.query(User).filter(User.id == user_id).first()
     return None
+
+def get_all_products(db: Session):
+    return db.query(Product).all()
