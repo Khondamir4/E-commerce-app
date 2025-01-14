@@ -6,6 +6,7 @@ from app.database import get_db
 from passlib.context import CryptContext
 from app.schemas import UserResponse, UserCreate
 from sqlalchemy.exc import IntegrityError
+from app.models import User
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -66,13 +67,9 @@ def login(credentials: schemas.Login, db: Session = Depends(get_db)):
     return {"message": "Login successful", "access_token": token, "token_type": "bearer"}
     
 
-@router.get("/profile")
-def get_profile(current_user: models.User = Depends(get_current_user)):
-    return {
-        "username": current_user.username,
-        "email": current_user.email or "No email provided",
-        "full_name": current_user.full_name or "No full name provided"
-    }
+@router.get("/profile", response_model=schemas.UserProfile)
+async def profile(current_user: models.User = Depends(get_current_user)):
+    return {"email": current_user.email, "full_name": current_user.full_name}
 
 @router.put("/update_profile")
 def update_profile(user_data: schemas.UserCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):

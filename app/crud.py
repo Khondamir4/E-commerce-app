@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.models import User
+from app.models import Product
+from app.schemas import ProductCreate
+from app.auth.utils import verify_token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -26,4 +29,24 @@ def authenticate_user(db: Session, username: str, password: str):
     user = get_user_by_username(db, username)
     if user and verify_password(password, user.hashed_password):
         return user
+    return None
+
+def create_product(db: Session, product: ProductCreate):
+    db_product = Product(
+        name=product.name,
+        description=product.description,
+        price=product.price,
+        quantity=product.quantity,
+    )
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product
+
+
+def get_user_by_token(db: Session, token: str):
+    # Assuming you have a function `verify_token` to verify and decode the token
+    user_id = verify_token(token)  # This function should return the user ID from the token
+    if user_id:
+        return db.query(User).filter(User.id == user_id).first()
     return None

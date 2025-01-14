@@ -1,9 +1,14 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from pydantic import BaseModel
 
 class UserProfile(BaseModel):
     email: str
-    full_name: str  
+    full_name: str
+
+    class Config:
+        from_attributes = True  
+
 
 class Login(BaseModel):
     username: str
@@ -34,3 +39,23 @@ class UserResponse(BaseModel):
 class UserUpdate(BaseModel):
     email: EmailStr
     full_name: str
+
+class ProductCreate(BaseModel):
+    name: str
+    description: str
+    price: float
+    quantity: int
+    
+    class Config:
+        from_attributes = True
+
+class ProductBase(BaseModel):
+    name: str
+    description: str
+    price: float
+
+class Product(ProductBase):
+    id: int
+
+    class Config:
+        from_attributes = True
