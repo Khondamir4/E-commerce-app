@@ -1,28 +1,26 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from app import crud, schemas, database, models
-from app.schemas import User
+from app import crud, schemas, models
 from app.database import get_db
-from fastapi import APIRouter, HTTPException, status, Depends, Security
+from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
-import logging
-from app.settings import settings  # Import settings here
+from app.settings import settings  
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 
 def create_access_token(data: dict):
-    expires_delta = timedelta(minutes=30)  # Token expiration time
+    expires_delta = timedelta(minutes=30) 
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_token(token: str) -> Optional[str]:  # Return username instead of user_id
+def verify_token(token: str) -> Optional[str]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -48,14 +46,14 @@ def login(credentials: schemas.Login, db: Session = Depends(get_db)):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    username = verify_token(token)  # Getting username from token
+    username = verify_token(token)  
     if not username:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token"
         )
-    print(f"Decoded username: {username}")  # Debugging output
-    user = db.query(models.User).filter(models.User.username == username).first()  # Fetching user by username
+    print(f"Decoded username: {username}")  
+    user = db.query(models.User).filter(models.User.username == username).first()  
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

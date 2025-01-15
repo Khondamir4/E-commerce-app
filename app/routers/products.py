@@ -1,10 +1,8 @@
-# app/routers/products.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import crud, schemas, models
 from app.routers.auth import get_db, get_current_user
-from app.models import User, Product
-from app.schemas import ProductCreate
+
 
 router = APIRouter()
 
@@ -35,7 +33,6 @@ def update_product(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    # Ensure the user is an admin before allowing product update
     if not current_user.is_admin:
         raise HTTPException(
             status_code=403,
@@ -44,7 +41,6 @@ def update_product(
 
     updated_product = crud.update_product(db=db, product_id=product_id, product=product)
 
-    # Handle case where product is not found
     if not updated_product:
         raise HTTPException(
             status_code = 404,
@@ -59,7 +55,6 @@ def delete_product(
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
-    # Check if the current user is an admin
     if not current_user.is_admin:
         raise HTTPException(
             status_code=403,
@@ -68,7 +63,6 @@ def delete_product(
     
     deleted_product = crud.delete_product(db=db, product_id=product_id)
 
-    # If the product is not found, raise an exception
     if not deleted_product:
         raise HTTPException(
             status_code=404,

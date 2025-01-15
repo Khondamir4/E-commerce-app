@@ -78,10 +78,7 @@ def update_product(db: Session, product_id: int, product: ProductCreate):
     return db_product  
 
 def delete_product(db: Session, product_id: int):
-    # Get the product by id
     product = db.query(Product).filter(Product.id == product_id).first()
-    
-    # If product doesn't exist, return None (or you can raise an exception)
     if not product:
         return None
 

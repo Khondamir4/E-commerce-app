@@ -6,7 +6,7 @@ from app.database import get_db
 from passlib.context import CryptContext
 from app.schemas import UserResponse, UserCreate
 from sqlalchemy.exc import IntegrityError
-from app.models import User
+
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -22,7 +22,6 @@ def get_db():
 
 @router.post("/register", response_model=UserResponse)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    # Check if username or email already exists
     existing_user = db.query(models.User).filter(
         models.User.username == user_data.username).first()
     
@@ -32,10 +31,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Username already exists"
         )
 
-    # Hash the password before saving
     hashed_password = pwd_context.hash(user_data.password)
-
-    # Create the user and add to the DB
     new_user = models.User(
         username=user_data.username,
         email=user_data.email,
@@ -54,7 +50,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email already exists"
         )
     
-    return new_user  # Returning the user without sensitive info
+    return new_user  
 
 @router.delete("/delete_user/{user_id}")
 def delete_user(
@@ -87,7 +83,6 @@ async def profile(current_user: models.User = Depends(get_current_user)):
 
 @router.put("/update_profile")
 def update_profile(user_data: schemas.UserCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    # Ensure user is logged in and can update their info
     current_user.email = user_data.email
     current_user.full_name = user_data.full_name
     
@@ -100,4 +95,3 @@ def update_profile(user_data: schemas.UserCreate, db: Session = Depends(get_db),
         "email": current_user.email,
         "full_name": current_user.full_name
     }
-
