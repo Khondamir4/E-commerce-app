@@ -16,7 +16,6 @@ class LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool isLoading = false;
 
-  // Add fetchProducts method
   Future<List<Product>> fetchProducts(String token) async {
     try {
       final response = await http.get(
@@ -27,17 +26,15 @@ class LoginScreenState extends State<LoginScreen> {
         },
       );
 
-      print('Products API Response: ${response.body}'); // Debug response
+      print('Products API Response: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
 
         if (jsonResponse is List) {
-          // If the response is a direct list
           return jsonResponse.map((json) => Product.fromJson(json)).toList();
         } else if (jsonResponse is Map &&
             jsonResponse.containsKey('products')) {
-          // If the response is an object containing the list
           List<dynamic> productJson = jsonResponse['products'];
           return productJson.map((json) => Product.fromJson(json)).toList();
         } else {
@@ -61,8 +58,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse(
-            'http://10.0.2.2:8000/login'), // Use correct URL for Android Emulator
+        Uri.parse('http://10.0.2.2:8000/login'),
         body: json.encode({
           'username': username,
           'password': password,
@@ -73,11 +69,7 @@ class LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
         String token = responseBody['access_token'];
-
-        // Fetch products after successful login
         List<Product> products = await fetchProducts(token);
-
-        // Navigate to the Product List Screen and pass the products list
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -85,15 +77,12 @@ class LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        // Improved error handling and output
         showSnackBar('Login Failed with status code: ${response.statusCode}');
-        print(
-            'Login Failed: ${response.body}'); // Debugging line to output server response
+        print('Login Failed: ${response.body}');
       }
     } catch (error) {
-      // Show error message and print the error in console for debugging
       showSnackBar('An error occurred: $error');
-      print('Error: $error'); // Debugging line to print error
+      print('Error: $error');
     } finally {
       setState(() {
         isLoading = false;

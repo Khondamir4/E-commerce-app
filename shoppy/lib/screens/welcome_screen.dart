@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shoppy/screens/login_screen.dart';
+import 'package:shoppy/screens/register_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -7,47 +9,81 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(height: 24),
-            Text(
-              "Find Your \n Perfect Furniture",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 24),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(32),
-              child: Image.asset(
-                "assets/images/wel.jpg",
-                height: 500,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(height: 36),
-            OutlinedButton(
-              onPressed: () {
-                print("pressed");
-              },
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            children: [
+              SizedBox(height: 24),
+              Text(
+                "Find Your \n Perfect Furniture",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 48),
-                backgroundColor: Colors.black,
               ),
-              child: Text(
-                "Get Started",
-                style: TextStyle(color: Colors.white),
+              SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(32),
+                  child: Image.asset(
+                    "assets/images/welcome.jpg",
+                    height: 500,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 12),
-            Text(
-              "Already have an account? Login",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
+              SizedBox(height: 36),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RegisterScreen(),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 48),
+                  backgroundColor: Colors.black,
+                ),
+                child: Text(
+                  "Get Started",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
+                child: Text.rich(
+                  TextSpan(
+                    text: "Already have an account? ",
+                    style: TextStyle(color: Colors.black),
+                    children: [
+                      TextSpan(
+                        text: "Login",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
