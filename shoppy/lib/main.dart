@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shoppy/screens/welcome_screen.dart';
+import 'package:shoppy/screens/main_screen.dart';
+//import 'package:shoppy/screens/welcome_screen.dart';
 //import 'screens/login_screen.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Merriweather",
       ),
-      home: WelcomeScreen(),
+      home: MainScreen(),
     );
   }
 }

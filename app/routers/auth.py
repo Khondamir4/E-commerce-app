@@ -20,7 +20,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=UserResponse, status_code=201)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(models.User).filter(
         models.User.username == user_data.username).first()

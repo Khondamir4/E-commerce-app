@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoppy/screens/login_screen.dart';
 import 'dart:convert';
+
+import 'package:shoppy/screens/main_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,27 +15,22 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _fullNameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
 
   bool isLoading = false;
 
   Future<void> registerUser() async {
     String username = _usernameController.text.trim();
     String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-    String confirmPassword = _confirmPasswordController.text.trim();
+    String fullName = _fullNameController.text.trim();
+    String password = _passwordController.text;
 
     if (username.isEmpty ||
         email.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty) {
+        fullName.isEmpty ||
+        password.isEmpty) {
       _showSnackBar("All fields are required.");
-      return;
-    }
-
-    if (password != confirmPassword) {
-      _showSnackBar("Passwords do not match.");
       return;
     }
 
@@ -42,29 +40,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse("http://10.0.2.2:8000/register"), // Adjust backend API URL
-        body: json.encode({
+        Uri.parse("http://10.0.2.2:8000/register"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
           "username": username,
           "email": email,
+          "full_name": fullName,
           "password": password,
         }),
-        headers: {
-          "Content-Type": "application/json",
-        },
       );
 
       if (response.statusCode == 201) {
         _showSnackBar("Registration successful!");
-        Navigator.pop(
-            context); // Return to the login screen after successful registration
-      } else if (response.statusCode == 400) {
-        final responseBody = json.decode(response.body);
-        _showSnackBar(responseBody['detail'] ?? "Registration failed.");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(),
+          ),
+        );
       } else {
-        _showSnackBar("Something went wrong. Please try again.");
+        _showSnackBar("Registration failed. Please try again.");
       }
     } catch (error) {
-      _showSnackBar("Error: $error");
+      _showSnackBar("An error occurred. Please try again later.");
     } finally {
       setState(() {
         isLoading = false;
@@ -80,193 +78,169 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Register"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  hintText: 'Enter your username',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Confirm Password',
-                  hintText: 'Re-enter your password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 24),
-              isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      onPressed: registerUser,
-                      child: Text("Register"),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 64),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(32),
+                    child: Image.asset(
+                      "assets/images/reg.jpg",
+                      height: 260,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
                     ),
-            ],
+                  ),
+                ),
+                SizedBox(height: 32),
+                Text(
+                  "Unique Furniture To Decor \n Your Home",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 32),
+                TextField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    hintText: "Username",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: "Email",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.2, color: Colors.black),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.2, color: Colors.black),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.2, color: Colors.black),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                TextField(
+                  controller: _fullNameController,
+                  decoration: InputDecoration(
+                    hintText: "Full name",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: "Password",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1.5, color: Colors.black),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                isLoading
+                    ? const CircularProgressIndicator()
+                    : OutlinedButton(
+                        onPressed: registerUser,
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 48,
+                          ),
+                          backgroundColor: Colors.black,
+                        ),
+                        child: const Text(
+                          'Register',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  },
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Already have an account? ",
+                      style: TextStyle(color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: "Login",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-// import 'package:shoppy/screens/login_screen.dart';
-
-// class RegisterScreen extends StatelessWidget {
-//   const RegisterScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SafeArea(
-//         child: ListView(
-//           children: [
-//             Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-//               child: Column(
-//                 children: [
-//                   SizedBox(height: 32),
-//                   Padding(
-//                     padding: const EdgeInsets.symmetric(horizontal: 64),
-//                     child: ClipRRect(
-//                       borderRadius: BorderRadius.circular(32),
-//                       child: Image.asset(
-//                         "assets/images/reg.jpg",
-//                         height: 260,
-//                         width: double.infinity,
-//                         fit: BoxFit.cover,
-//                       ),
-//                     ),
-//                   ),
-//                   SizedBox(height: 32),
-//                   Text(
-//                     "Unique Furniture To Decor \n Your Home",
-//                     textAlign: TextAlign.center,
-//                     style: TextStyle(
-//                       fontSize: 24,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   SizedBox(height: 32),
-//                   TextField(
-//                     decoration: InputDecoration(
-//                       hintText: "username",
-//                       hintStyle: TextStyle(color: Colors.grey),
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide(width: 1.5, color: Colors.black),
-//                       ),
-//                       focusedBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide(width: 1.5, color: Colors.black),
-//                       ),
-//                       enabledBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide(width: 1.5, color: Colors.black),
-//                       ),
-//                     ),
-//                   ),
-//                   SizedBox(height: 12),
-//                   TextField(
-//                     decoration: InputDecoration(
-//                       hintText: "password",
-//                       hintStyle: TextStyle(color: Colors.grey),
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide(width: 1.2, color: Colors.black),
-//                       ),
-//                       focusedBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide(width: 1.2, color: Colors.black),
-//                       ),
-//                       enabledBorder: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                         borderSide: BorderSide(width: 1.2, color: Colors.black),
-//                       ),
-//                     ),
-//                   ),
-//                   SizedBox(height: 32),
-//                   OutlinedButton(
-//                     onPressed: () {
-//                       print("printed");
-//                     },
-//                     style: OutlinedButton.styleFrom(
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                       ),
-//                       padding:
-//                           EdgeInsets.symmetric(vertical: 16, horizontal: 48),
-//                       backgroundColor: Colors.black,
-//                     ),
-//                     child: Text(
-//                       "Create account",
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                   ),
-//                   SizedBox(height: 12),
-//                   GestureDetector(
-//                     onTap: () {
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(builder: (context) => LoginScreen()),
-//                       );
-//                     },
-//                     child: Text.rich(
-//                       TextSpan(
-//                         text: "Already have an account? ",
-//                         style: TextStyle(color: Colors.black),
-//                         children: [
-//                           TextSpan(
-//                             text: "Login",
-//                             style: TextStyle(
-//                               color: Colors.blue,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       textAlign: TextAlign.center,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
