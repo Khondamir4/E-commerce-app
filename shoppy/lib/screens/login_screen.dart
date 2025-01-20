@@ -2,7 +2,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shoppy/models/product_model.dart';
-import 'package:shoppy/screens/product_list_screen.dart';
+import 'package:shoppy/screens/main_screen.dart';
+//import 'package:shoppy/screens/product_list_screen.dart';
+import 'package:shoppy/widgets/register_textfield.dart';
+import 'package:shoppy/widgets/welcome_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -73,7 +76,7 @@ class LoginScreenState extends State<LoginScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductListScreen(products: products),
+            builder: (context) => MainScreen(products: products),
           ),
         );
       } else {
@@ -127,69 +130,18 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 32),
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    hintText: "Username",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                  ),
-                ),
+                RegisterTextfield(
+                    controller: _usernameController, hintText: "Username"),
                 SizedBox(height: 12),
-                TextField(
+                RegisterTextfield(
                   controller: _passwordController,
+                  hintText: "Password",
                   obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                  ),
                 ),
                 SizedBox(height: 20),
                 isLoading
                     ? CircularProgressIndicator()
-                    : OutlinedButton(
-                        onPressed: loginUser,
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 48,
-                          ),
-                          backgroundColor: Colors.black,
-                        ),
-                        child: Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                    : WelcomeButton(onPressed: loginUser, title: "Login")
               ],
             ),
           ),

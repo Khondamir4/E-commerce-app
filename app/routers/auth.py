@@ -4,7 +4,7 @@ from app import crud, schemas, database, models
 from app.auth.utils import get_current_user, create_access_token
 from app.database import get_db
 from passlib.context import CryptContext
-from app.schemas import UserResponse, UserCreate
+from app.schemas import RegisterResponse, UserCreate
 from sqlalchemy.exc import IntegrityError
 
 
@@ -20,7 +20,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/register", response_model=UserResponse, status_code=201)
+@router.post("/register", response_model=RegisterResponse, status_code=201)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(models.User).filter(
         models.User.username == user_data.username).first()
@@ -50,7 +50,9 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email already exists"
         )
     
-    return new_user  
+    access_token = create_access_token(data={"sub": new_user.username})
+    return {"message": "User registered successfully", "access_token": access_token}
+
 
 @router.delete("/delete_user/{user_id}")
 def delete_user(

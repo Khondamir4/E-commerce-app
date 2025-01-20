@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shoppy/screens/login_screen.dart';
+import 'package:shoppy/models/product_model.dart';
 import 'dart:convert';
 
 import 'package:shoppy/screens/main_screen.dart';
+import 'package:shoppy/widgets/login_link.dart';
+import 'package:shoppy/widgets/register_textfield.dart';
+import 'package:shoppy/widgets/welcome_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,6 +22,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
 
   bool isLoading = false;
+
+  Future<List<Product>> fetchProducts(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/products'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse is List) {
+          return jsonResponse.map((json) => Product.fromJson(json)).toList();
+        } else if (jsonResponse is Map &&
+            jsonResponse.containsKey('products')) {
+          List<dynamic> productJson = jsonResponse['products'];
+          return productJson.map((json) => Product.fromJson(json)).toList();
+        } else {
+          throw Exception('Unexpected response format');
+        }
+      } else {
+        throw Exception(
+            'Failed to fetch products: ${response.statusCode} - ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching products: $e');
+      rethrow;
+    }
+  }
 
   Future<void> registerUser() async {
     String username = _usernameController.text.trim();
@@ -52,17 +86,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (response.statusCode == 201) {
         _showSnackBar("Registration successful!");
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainScreen(),
-          ),
-        );
+        final responseBody = json.decode(response.body);
+
+        // Validate token existence
+        if (responseBody.containsKey('access_token')) {
+          String token = responseBody['access_token'];
+          List<Product> products = await fetchProducts(token);
+
+          // Navigate to the MainScreen with products
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainScreen(products: products),
+            ),
+          );
+        } else {
+          throw Exception('Token not found in response');
+        }
       } else {
-        _showSnackBar("Registration failed. Please try again.");
+        _showSnackBar(
+            "Registration failed: ${response.statusCode} - ${response.body}");
       }
     } catch (error) {
-      _showSnackBar("An error occurred. Please try again later.");
+      _showSnackBar("An error occurred: $error");
+      debugPrint('Error during registration: $error');
     } finally {
       setState(() {
         isLoading = false;
@@ -77,166 +124,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 32),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 64),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(32),
-                    child: Image.asset(
-                      "assets/images/reg.jpg",
-                      height: 260,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 32),
-                Text(
-                  "Unique Furniture To Decor \n Your Home",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 32),
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    hintText: "Username",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 12),
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.2, color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.2, color: Colors.black),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.2, color: Colors.black),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 12),
-                TextField(
-                  controller: _fullNameController,
-                  decoration: InputDecoration(
-                    hintText: "Full name",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 12),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(width: 1.5, color: Colors.black),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                isLoading
-                    ? const CircularProgressIndicator()
-                    : OutlinedButton(
-                        onPressed: registerUser,
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 48,
-                          ),
-                          backgroundColor: Colors.black,
-                        ),
-                        child: const Text(
-                          'Register',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(height: 32),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 64),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(32),
+                      child: Image.asset(
+                        "assets/images/reg.jpg",
+                        height: 260,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
-                  },
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Already have an account? ",
-                      style: TextStyle(color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: "Login",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
+                  SizedBox(height: 32),
+                  Text(
+                    "Unique Furniture To Decor \n Your Home",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 32),
+                  RegisterTextfield(
+                    controller: _fullNameController,
+                    hintText: "Full Name",
+                  ),
+                  SizedBox(height: 12),
+                  RegisterTextfield(
+                    controller: _emailController,
+                    hintText: "Email",
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  SizedBox(height: 12),
+                  RegisterTextfield(
+                    controller: _usernameController,
+                    hintText: "Username",
+                  ),
+                  SizedBox(height: 12),
+                  RegisterTextfield(
+                    controller: _passwordController,
+                    hintText: "Password",
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 20),
+                  isLoading
+                      ? const CircularProgressIndicator()
+                      : WelcomeButton(
+                          onPressed: registerUser, title: "Register"),
+                  const SizedBox(height: 12),
+                  LoginLink(),
+                ],
+              ),
             ),
           ),
         ),

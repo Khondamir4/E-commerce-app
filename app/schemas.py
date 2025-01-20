@@ -27,6 +27,10 @@ class UserCreate(BaseModel):
     email: EmailStr 
     full_name: str  
 
+class RegisterResponse(BaseModel):
+    message: str
+    access_token: str
+
 class UserResponse(BaseModel):
     username: str
     email: str

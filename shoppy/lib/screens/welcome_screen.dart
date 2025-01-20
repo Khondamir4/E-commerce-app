@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shoppy/screens/login_screen.dart';
 import 'package:shoppy/screens/register_screen.dart';
+import 'package:shoppy/widgets/login_link.dart';
+import 'package:shoppy/widgets/welcome_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -37,7 +38,8 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 36),
-                OutlinedButton(
+                WelcomeButton(
+                  title: "Get Started",
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -46,46 +48,9 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 48),
-                    backgroundColor: Colors.black,
-                  ),
-                  child: Text(
-                    "Get Started",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
                 SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
-                  },
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Already have an account? ",
-                      style: TextStyle(color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: "Login",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                LoginLink(),
               ],
             ),
           ),

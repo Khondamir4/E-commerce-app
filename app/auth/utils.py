@@ -12,8 +12,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 
-def create_access_token(data: dict):
-    expires_delta = timedelta(minutes=30) 
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    if expires_delta is None:
+        expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES) 
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
