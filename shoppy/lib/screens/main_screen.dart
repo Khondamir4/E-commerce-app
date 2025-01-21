@@ -28,18 +28,13 @@ class MainScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Row(
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -67,52 +62,52 @@ class MainScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
-                      SizedBox(
-                        height: 250,
-                        child: ListView.separated(
-                          separatorBuilder: (context, index) =>
-                              SizedBox(width: 8),
-                          scrollDirection: Axis.horizontal,
-                          itemCount: sortedProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = sortedProducts[index];
-                            return GestureDetector(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailScreen(
-                                    productId: product.id,
-                                  ),
+                    ),
+                    SizedBox(height: 8),
+                    SizedBox(
+                      height: 250,
+                      child: ListView.separated(
+                        separatorBuilder: (context, index) =>
+                            SizedBox(width: 12),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: sortedProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = sortedProducts[index];
+                          return GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailScreen(
+                                  productId: product.id,
                                 ),
                               ),
-                              child: Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.asset(
-                                      "assets/images/login.webp",
-                                      height: 200,
-                                      width: 170,
-                                      fit: BoxFit.cover,
-                                    ),
+                            ),
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.asset(
+                                    "assets/images/login.webp",
+                                    height: 200,
+                                    width: 170,
+                                    fit: BoxFit.cover,
                                   ),
-                                  Text(
-                                    product.name,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                ),
+                                Text(
+                                  product.name,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  Text("\$${product.price}"),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                                ),
+                                Text("\$${product.price}"),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               )
             ],

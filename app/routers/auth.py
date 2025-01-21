@@ -81,7 +81,7 @@ def login(credentials: schemas.Login, db: Session = Depends(get_db)):
 
 @router.get("/profile", response_model=schemas.UserProfile)
 async def profile(current_user: models.User = Depends(get_current_user)):
-    return {"email": current_user.email, "full_name": current_user.full_name}
+    return {"username": current_user.username,"email": current_user.email, "full_name": current_user.full_name}
 
 @router.put("/update_profile")
 def update_profile(user_data: schemas.UserCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):

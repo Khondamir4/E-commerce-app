@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shoppy/screens/cart_screen.dart';
 import 'package:shoppy/screens/detail_screen.dart';
 import 'package:shoppy/models/product_model.dart';
+import 'package:shoppy/screens/profile_screen.dart';
 
 class ListScreen extends StatelessWidget {
   final List<Product> products;
@@ -40,7 +41,17 @@ class ListScreen extends StatelessWidget {
                         icon: Icon(Icons.shopping_cart_outlined),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileScreen(
+                                accessToken: products
+                                    .toString(), //! Access token must be passed
+                              ),
+                            ),
+                          );
+                        },
                         icon: Icon(Icons.person_outline_rounded),
                       ),
                     ],
