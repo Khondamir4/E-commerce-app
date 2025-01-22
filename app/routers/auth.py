@@ -76,7 +76,7 @@ def login(credentials: schemas.Login, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
     token = create_access_token({"sub": user.username})
-    return {"message": "Login successful", "access_token": token, "token_type": "bearer"}
+    return {"message": "Login successful", "access_token": token, "token_type": "bearer","is_admin": user.is_admin}
     
 
 @router.get("/profile", response_model=schemas.UserProfile)

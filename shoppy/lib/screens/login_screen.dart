@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:shoppy/models/product_model.dart';
+import 'package:shoppy/screens/admin_dashboard_screen.dart';
 import 'package:shoppy/screens/main_screen.dart';
 import 'package:shoppy/services/provider/product_provider.dart';
 import 'package:shoppy/services/provider/userdata_provider.dart';
@@ -73,16 +74,27 @@ class LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
         final token = responseBody['access_token'];
+        final isAdmin = responseBody['is_admin'];
         Provider.of<UserData>(context, listen: false).setAccessToken(token);
         final products = await fetchProducts(token);
         Provider.of<ProductProvider>(context, listen: false)
             .setProducts(products);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainScreen(),
-          ),
-        );
+
+        if (isAdmin) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AdminDashboardScreen(),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainScreen(),
+            ),
+          );
+        }
       } else {
         showSnackBar('Login Failed with status code: ${response.statusCode}');
       }
