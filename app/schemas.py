@@ -82,22 +82,3 @@ class ProductResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-class CartItem(BaseModel):
-    product_id: int
-    quantity: int
-
-class AddToCartRequest(BaseModel):
-    product_id: int
-    quantity: int
-
-class CartItemBase(BaseModel):
-    product_id: int
-    quantity: int
-
-class CartItemResponse(CartItemBase):
-    id: int
-    user_id: int
-
-    class Config:
-        from_attributes = True

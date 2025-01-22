@@ -9,8 +9,3 @@ app.include_router(auth.router)
 app.include_router(products.router)
 
 database.create_db()
-
-if __name__ == "__main__":
-    print("Recreating database tables...")
-    Base.metadata.create_all(bind=engine)
-    print("Database initialization complete.")

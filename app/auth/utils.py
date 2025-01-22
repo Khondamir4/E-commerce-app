@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from app import crud, schemas, models
+from app import models
 from app.database import get_db
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
@@ -31,18 +31,6 @@ def verify_token(token: str) -> Optional[str]:
     except JWTError as e:
         print(f"Error decoding token: {e}")
         return None
-
-router = APIRouter()
-
-@router.post("/login")
-def login(credentials: schemas.Login, db: Session = Depends(get_db)):
-    user = crud.authenticate_user(db, credentials.username, credentials.password)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    
-    access_token = create_access_token(data={"sub": user.username})
-    return {"message": "Login successful", "access_token": access_token, "token_type": "bearer"}
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
