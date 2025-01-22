@@ -1,9 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:shoppy/models/product_model.dart';
 import 'package:shoppy/screens/main_screen.dart';
-//import 'package:shoppy/screens/product_list_screen.dart';
+import 'package:shoppy/services/provider/product_provider.dart';
+import 'package:shoppy/services/provider/userdata_provider.dart';
 import 'package:shoppy/widgets/register_textfield.dart';
 import 'package:shoppy/widgets/welcome_button.dart';
 
@@ -29,11 +33,8 @@ class LoginScreenState extends State<LoginScreen> {
         },
       );
 
-      print('Products API Response: ${response.body}');
-
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
-
         if (jsonResponse is List) {
           return jsonResponse.map((json) => Product.fromJson(json)).toList();
         } else if (jsonResponse is Map &&
@@ -70,22 +71,23 @@ class LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
-        var responseBody = json.decode(response.body);
-        String token = responseBody['access_token'];
-        List<Product> products = await fetchProducts(token);
+        final responseBody = json.decode(response.body);
+        final token = responseBody['access_token'];
+        Provider.of<UserData>(context, listen: false).setAccessToken(token);
+        final products = await fetchProducts(token);
+        Provider.of<ProductProvider>(context, listen: false)
+            .setProducts(products);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MainScreen(products: products),
+            builder: (context) => MainScreen(),
           ),
         );
       } else {
         showSnackBar('Login Failed with status code: ${response.statusCode}');
-        print('Login Failed: ${response.body}');
       }
     } catch (error) {
       showSnackBar('An error occurred: $error');
-      print('Error: $error');
     } finally {
       setState(() {
         isLoading = false;

@@ -1,9 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shoppy/models/product_model.dart';
 import 'dart:convert';
-
 import 'package:shoppy/screens/main_screen.dart';
+import 'package:shoppy/services/provider/product_provider.dart';
+import 'package:shoppy/services/provider/userdata_provider.dart';
 import 'package:shoppy/widgets/login_link.dart';
 import 'package:shoppy/widgets/register_textfield.dart';
 import 'package:shoppy/widgets/welcome_button.dart';
@@ -85,24 +88,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (response.statusCode == 201) {
-        _showSnackBar("Registration successful!");
         final responseBody = json.decode(response.body);
+        final token = responseBody['access_token'];
+        Provider.of<UserData>(context, listen: false).setAccessToken(token);
 
-        // Validate token existence
-        if (responseBody.containsKey('access_token')) {
-          String token = responseBody['access_token'];
-          List<Product> products = await fetchProducts(token);
-
-          // Navigate to the MainScreen with products
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(products: products),
-            ),
-          );
-        } else {
-          throw Exception('Token not found in response');
-        }
+        final products = await fetchProducts(token);
+        Provider.of<ProductProvider>(context, listen: false)
+            .setProducts(products);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(),
+          ),
+        );
       } else {
         _showSnackBar(
             "Registration failed: ${response.statusCode} - ${response.body}");

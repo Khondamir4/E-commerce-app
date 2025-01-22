@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:shoppy/widgets/edit_profile_button.dart';
+import 'package:shoppy/screens/cart_screen.dart';
+import 'package:shoppy/services/provider/userdata_provider.dart';
 import 'package:shoppy/widgets/logout_button.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String accessToken;
-  const ProfileScreen({super.key, required this.accessToken});
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -14,6 +15,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late Future<Map<String, dynamic>> userProfile;
+  String? accessToken;
 
   Future<Map<String, dynamic>> fetchUserProfile(String accessToken) async {
     final response = await http.get(
@@ -31,9 +33,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    userProfile = fetchUserProfile(widget.accessToken);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    accessToken = Provider.of<UserData>(context, listen: false).accessToken;
+    if (accessToken != null) {
+      userProfile = fetchUserProfile(accessToken!);
+    }
   }
 
   @override
@@ -86,11 +91,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.grey,
                               ),
                             ),
-                            SizedBox(height: 8),
-                            EditProfileButton(
-                              onPressed: () {},
-                              title: "Edit profile",
-                            ),
                           ],
                         ),
                         SizedBox(height: 32),
@@ -115,27 +115,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ],
                                   ),
                                   IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(Icons.arrow_forward),
-                                  ),
-                                ],
-                              ),
-                              Divider(
-                                height: 24,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.phone),
-                                      SizedBox(width: 20),
-                                      Text("Phone number"),
-                                    ],
-                                  ),
-                                  IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => CartScreen(),
+                                        ),
+                                      );
+                                    },
                                     icon: Icon(Icons.arrow_forward),
                                   ),
                                 ],

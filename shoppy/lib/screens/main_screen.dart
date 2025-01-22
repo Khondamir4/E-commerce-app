@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shoppy/models/product_model.dart';
 import 'package:shoppy/screens/detail_screen.dart';
 import 'package:shoppy/screens/list_screen.dart';
+import 'package:shoppy/services/provider/product_provider.dart';
 
 class MainScreen extends StatelessWidget {
-  final List<Product> products;
-
-  const MainScreen({super.key, required this.products});
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final products = Provider.of<ProductProvider>(context).products;
     final sortedProducts = (List<Product>.from(products)
           ..sort((a, b) => a.price.compareTo(b.price)))
         .take(3)
@@ -46,9 +47,7 @@ class MainScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ListScreen(
-                                    products: products,
-                                  ),
+                                  builder: (context) => ListScreen(),
                                 ),
                               );
                             },
