@@ -15,6 +15,16 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void removeProduct(int productId) {
+    _products.removeWhere((product) => product.id == productId);
+    notifyListeners();
+  }
+
+  void addProduct(Product product) {
+    _products.add(product);
+    notifyListeners();
+  }
+
   Product? getProductById(int id) {
     try {
       return _products.firstWhere((product) => product.id == id);

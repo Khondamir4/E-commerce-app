@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.models import User, Product
@@ -31,8 +32,6 @@ def delete_user(db: Session, user_id: int):
     db.commit()
     return user
 
-
-
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user_by_username(db, username)
     if user and verify_password(password, user.hashed_password):
@@ -40,16 +39,20 @@ def authenticate_user(db: Session, username: str, password: str):
     return None
 
 def create_product(db: Session, product: ProductCreate):
-    db_product = Product(
-        name=product.name,
-        description=product.description,
-        price=product.price,
-        quantity=product.quantity,
-    )
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    try:
+        db_product = Product(
+        name=product.name.strip(),
+        description=product.description.strip(),
+        price=round(product.price, 2),
+        quantity=max(product.quantity, 0),
+        )
+        db.add(db_product)
+        db.commit()
+        db.refresh(db_product)
+        return db_product
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error creating product: {e}")
 
 
 def get_user_by_token(db: Session, token: str):
@@ -81,13 +84,10 @@ def delete_product(db: Session, product_id: int):
     if not product:
         return None
 
-    db.delete(product)
-    db.commit()
-    
-    return product
-
-def search_products(db: Session, query: str):
-    return db.query(Product).filter(
-        (Product.name.ilike(f"%{query}%")) | 
-        (Product.description.ilike(f"%{query}%"))
-    ).all()
+    try:
+        db.delete(product)
+        db.commit()
+        return product
+    except Exception as e:
+        db.rollback()
+        raise e

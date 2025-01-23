@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:shoppy/models/product_model.dart';
-import 'package:shoppy/screens/admin_dashboard_screen.dart';
+import 'package:shoppy/screens/admin/admin_dashboard_screen.dart';
 import 'package:shoppy/screens/main_screen.dart';
 import 'package:shoppy/services/provider/product_provider.dart';
 import 'package:shoppy/services/provider/userdata_provider.dart';

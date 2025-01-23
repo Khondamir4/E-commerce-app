@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shoppy/screens/cart_screen.dart';
+import 'package:shoppy/screens/welcome_screen.dart';
 import 'package:shoppy/services/provider/userdata_provider.dart';
 import 'package:shoppy/widgets/logout_button.dart';
 import 'dart:convert';
@@ -202,7 +203,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         SizedBox(height: 24),
                         LogoutButton(
-                          onPressed: () {},
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WelcomeScreen(),
+                            ),
+                          ),
                           title: "Logout",
                         )
                       ],

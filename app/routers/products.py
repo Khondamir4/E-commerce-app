@@ -7,12 +7,12 @@ from app.models import Product
 
 router = APIRouter()
 
-@router.post("/products", response_model=schemas.Product)
+@router.post("/products", response_model=schemas.Product,status_code=201)
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Permission denied")
-    
-    return crud.create_product(db=db, product=product)
+        raise HTTPException(status_code=403, detail="Only admins can create products")
+    created_product = crud.create_product(db=db, product=product)
+    return created_product
 
 @router.get("/products")
 def get_products(

@@ -47,9 +47,9 @@ class CheckoutScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Form(
               key: _formKey,
               child: Column(
@@ -132,7 +132,7 @@ class CheckoutScreen extends StatelessWidget {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 200),
+                  SizedBox(height: 24),
                   CheckoutButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {

@@ -5,19 +5,23 @@ class LocationTextfield extends StatelessWidget {
   final Icon? prefixIcon;
   final TextInputType? keyboardType;
   final FormFieldValidator<String>? validator;
+  final TextEditingController? controller;
 
-  const LocationTextfield(
-      {super.key,
-      required this.hintText,
-      this.prefixIcon,
-      this.keyboardType,
-      this.validator});
+  const LocationTextfield({
+    super.key,
+    required this.hintText,
+    this.prefixIcon,
+    this.keyboardType,
+    this.validator,
+    this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       validator: validator,
       keyboardType: keyboardType,
+      controller: controller,
       decoration: InputDecoration(
         prefixIcon: prefixIcon,
         prefixIconColor: Colors.grey,

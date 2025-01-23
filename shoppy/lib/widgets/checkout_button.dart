@@ -19,7 +19,7 @@ class CheckoutButton extends StatelessWidget {
         ),
         padding: EdgeInsets.symmetric(
           vertical: 24,
-          horizontal: 140,
+          horizontal: 120,
         ),
         backgroundColor: Colors.black,
       ),
