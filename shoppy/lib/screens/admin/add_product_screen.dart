@@ -1,5 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shoppy/services/provider/userdata_provider.dart';
@@ -7,6 +6,7 @@ import 'package:shoppy/widgets/checkout_button.dart';
 import 'package:shoppy/widgets/location_textfield.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -20,8 +20,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _quantityController = TextEditingController();
+  File? _selectedImage;
   bool isLoading = false;
 
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _selectImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  // Send Product Details & Image as Multipart Request
   Future<void> addProduct() async {
     final name = _nameController.text.trim();
     final description = _descriptionController.text.trim();
@@ -36,31 +50,48 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
 
+    if (_selectedImage == null) {
+      _showSnackBar("Please select an image");
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
 
     try {
-      final response = await http.post(
+      // Prepare a multipart request for sending the data
+      var request = http.MultipartRequest(
+        'POST',
         Uri.parse('http://10.0.2.2:8000/products'),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-        body: json.encode({
-          'name': name,
-          'description': description,
-          'price': double.tryParse(price) ?? 0.0,
-          'quantity': int.tryParse(quantity) ?? 0,
-        }),
       );
+      request.headers.addAll({
+        "Authorization": "Bearer $token",
+      });
+
+      // Add other form data fields
+      request.fields['name'] = name;
+      request.fields['description'] = description;
+      request.fields['price'] = double.tryParse(price)?.toString() ?? '0.0';
+      request.fields['quantity'] = int.tryParse(quantity)?.toString() ?? '0';
+
+      // Add image as multipart
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          _selectedImage!.path,
+        ),
+      );
+
+      var response = await request.send();
 
       if (response.statusCode == 201) {
         _showSnackBar("Product added successfully!");
-        Navigator.pop(context);
+        Navigator.pop(context); // Go back after successful upload
       } else {
-        final responseBody = json.decode(response.body);
-        _showSnackBar("Failed to add product: ${responseBody['detail']}");
+        final responseBody = await response.stream.bytesToString();
+        final errorData = json.decode(responseBody);
+        _showSnackBar("Failed to add product: ${errorData['detail']}");
       }
     } catch (e) {
       _showSnackBar("An error occurred: $e");
@@ -104,6 +135,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
               LocationTextfield(
                 controller: _quantityController,
                 hintText: "Quantity",
+              ),
+              SizedBox(height: 12),
+              _selectedImage == null
+                  ? Text("No image selected")
+                  : Image.file(_selectedImage!, height: 150),
+              ElevatedButton(
+                onPressed: _selectImage,
+                child: Text("Select Image"),
               ),
               Expanded(child: SizedBox(height: 12)),
               isLoading

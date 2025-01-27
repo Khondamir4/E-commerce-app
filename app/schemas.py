@@ -50,6 +50,7 @@ class ProductCreate(BaseModel):
     description: str
     price: float
     quantity: int
+    image_path: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -59,6 +60,7 @@ class ProductBase(BaseModel):
     description: str
     price: float
     quantity: int
+    image_path: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -69,6 +71,7 @@ class Product(ProductBase):
     description: str
     price: float
     quantity: int
+    image_path: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -79,6 +82,7 @@ class ProductResponse(BaseModel):
     description: str
     price: float
     quantity: int
+    image_path: Optional[str] = None
 
     class Config:
         from_attributes = True

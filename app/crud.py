@@ -38,21 +38,23 @@ def authenticate_user(db: Session, username: str, password: str):
         return user
     return None
 
-def create_product(db: Session, product: ProductCreate):
+def create_product(db: Session, name: str,description: str, price: float, quantity: int, image: str) -> Product:
     try:
         db_product = Product(
-        name=product.name.strip(),
-        description=product.description.strip(),
-        price=round(product.price, 2),
-        quantity=max(product.quantity, 0),
+            name=name.strip(),
+            description=description.strip(),
+            price=round(price, 2),
+            quantity=max(quantity, 0),
+            image_path=image,
         )
+        
         db.add(db_product)
         db.commit()
         db.refresh(db_product)
         return db_product
     except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error creating product: {e}")
+        db.rollback()  
+        raise HTTPException(status_code=500, detail=f"Error creating product in DB: {e}")
 
 
 def get_user_by_token(db: Session, token: str):
