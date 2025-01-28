@@ -24,7 +24,6 @@ class CartScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            //_buildHeader(),
             const SizedBox(height: 12),
             Expanded(
               child: cartItems.isEmpty

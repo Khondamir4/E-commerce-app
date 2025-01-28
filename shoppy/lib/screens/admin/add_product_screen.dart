@@ -103,7 +103,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final response = await request.send();
       if (response.statusCode == 201) {
         _showSnackBar("Product added successfully!");
-        Navigator.pop(context); // Navigate back to the previous screen
+        Navigator.pop(context);
       } else {
         final responseBody = await response.stream.bytesToString();
         final errorData = json.decode(responseBody);
