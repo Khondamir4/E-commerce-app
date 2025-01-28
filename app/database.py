@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False,"timeout": 15})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
@@ -26,5 +26,6 @@ def get_db():
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
+SECRET_KEY="mysecretkey123456"
+ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=30

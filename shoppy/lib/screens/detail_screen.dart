@@ -37,12 +37,14 @@ class DetailScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24),
-                  child: Image.asset(
-                    "assets/images/reg.jpg",
-                    height: 500,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: product.imagePath == null
+                      ? Icon(Icons.image)
+                      : Image.network(
+                          product.imagePath!,
+                          height: 500,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ),

@@ -92,12 +92,14 @@ class ListScreen extends StatelessWidget {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.asset(
-                                    "assets/images/login.webp",
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
+                                  child: product.imagePath == null
+                                      ? Icon(Icons.image)
+                                      : Image.network(
+                                          product.imagePath!,
+                                          height: 200,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
                                 ),
                                 SizedBox(height: 8),
                                 Text(

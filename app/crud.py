@@ -66,20 +66,29 @@ def get_user_by_token(db: Session, token: str):
 def get_all_products(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Product).offset(skip).limit(limit).all()
 
-def update_product(db: Session, product_id: int, product: ProductCreate):
+def update_product(db: Session, product_id: int, name: str, description: str, price: float, quantity: int, image: str):
+    # Query the product by its ID
     db_product = db.query(Product).filter(Product.id == product_id).first()
 
+    # Check if the product exists
     if not db_product:
-        return None  
-
-    db_product.name = product.name
-    db_product.description = product.description
-    db_product.price = product.price
-    db_product.quantity = product.quantity
+        return None  # If the product doesn't exist, return None
+    
+    # Update the fields directly
+    db_product.name = name.strip()
+    db_product.description = description.strip()
+    db_product.price = round(price, 2)
+    db_product.quantity = max(quantity, 0)  # Ensure quantity is non-negative
+    db_product.image_path = image
+    
+    # Commit the changes to the database
     db.commit()
-    db.refresh(db_product) 
+    
+    # Optionally refresh the product to load the latest data from the database
+    db.refresh(db_product)
+    
+    return db_product
 
-    return db_product  
 
 def delete_product(db: Session, product_id: int):
     product = db.query(Product).filter(Product.id == product_id).first()

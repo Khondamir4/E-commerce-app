@@ -22,7 +22,7 @@ class Product {
       description: json['description'],
       price: json['price'],
       quantity: json['quantity'],
-      imagePath: json['image'],
+      imagePath: json['image_path'],
     );
   }
 }
